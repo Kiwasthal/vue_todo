@@ -7,18 +7,31 @@
  */
 import { ref, onMounted, computed, watch } from 'vue';
 
-const todos = ref([]);
+interface todo {
+  content: string;
+  category: string;
+  createdAt: number;
+}
+
+const todos = ref<todo[]>([]);
 const name = ref<string>('');
 
 const inputContent = ref<string>('');
-const inputCategory = ref(null);
+const inputCategory = ref<string | null>(null);
 
 //Computing the todos in ascending order based on time created
 const todoAsc = computed(() =>
   todos.value.sort((a, b) => b.createdAt - a.createdAt)
 );
 
-const addTodo = () => {};
+const addTodo = () => {
+  if (inputContent.value.trim() === '' || inputCategory.value === null) return;
+  todos.value.push({
+    content: inputContent.value,
+    category: inputCategory.value,
+    createdAt: new Date().getTime(),
+  });
+};
 //Watching for a change in the input name, if it changes update LS
 watch(name, newValue => {
   localStorage.setItem('name', newValue);
