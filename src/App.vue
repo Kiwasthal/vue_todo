@@ -34,6 +34,8 @@ const addTodo = () => {
     createdAt: new Date().getTime(),
     done: false,
   });
+  inputContent.value = '';
+  inputCategory.value = null;
 };
 
 const removeTodo = (todo: todo) => {
@@ -59,6 +61,7 @@ watch(
 //Retrieve saved tasks as well
 onMounted(() => {
   name.value = localStorage.getItem('name') || '';
+  // @ts-ignore
   todos.value = JSON.parse(localStorage.getItem('todos')) || [];
 });
 </script>
