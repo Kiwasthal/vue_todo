@@ -11,9 +11,11 @@ interface todo {
   content: string;
   category: string;
   createdAt: number;
+  done: boolean;
 }
 
 const todos = ref<todo[]>([]);
+
 const name = ref<string>('');
 
 const inputContent = ref<string>('');
@@ -30,15 +32,34 @@ const addTodo = () => {
     content: inputContent.value,
     category: inputCategory.value,
     createdAt: new Date().getTime(),
+    done: false,
   });
 };
+
+const removeTodo = (todo: todo) => {
+  todos.value = todos.value.filter(v => v !== todo);
+};
+
 //Watching for a change in the input name, if it changes update LS
 watch(name, newValue => {
   localStorage.setItem('name', newValue);
 });
-//When the component first mounts we retreive the name item else we put an empty starting value
+
+//Watching changes when a new todo is inserted
+watch(
+  todos,
+  newVal => {
+    localStorage.setItem('todos', JSON.stringify(newVal));
+  },
+  //Check for all changes, to recall
+  { deep: true }
+);
+
+//When the component first mounts we retrieve the name item else we put an empty starting value
+//Retrieve saved tasks as well
 onMounted(() => {
   name.value = localStorage.getItem('name') || '';
+  todos.value = JSON.parse(localStorage.getItem('todos')) || [];
 });
 </script>
 
@@ -86,6 +107,26 @@ onMounted(() => {
         </div>
         <input type="submit" value="Add todo" />
       </form>
+    </section>
+    <section class="todo-list">
+      <h3>Todo List</h3>
+      <div class="list">
+        <div
+          v-for="todo in todoAsc"
+          :class="`todo-item ${todo.done && 'done'}`"
+        >
+          <label>
+            <input type="checkbox" v-model="todo.done" />
+            <span :class="`bubble ${todo.category}`"></span>
+          </label>
+          <div class="todo-content">
+            <input type="text" v-model="todo.content" />
+          </div>
+          <div class="actions">
+            <button class="delete" @click="removeTodo(todo)">Delete</button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </template>
